@@ -1,0 +1,19 @@
+- name: cloning VM from a template
+  hosts: localhost
+  gather_facts: yes
+  vars:
+#    ansible_python_interpreter: /usr/bin/python3
+  tasks:
+    - name: create a vm from a template
+      vmware_guest_snapshot:
+        hostname: "192.168.3.80"
+        username: "Administrator@vsphere.local"
+        password: "Kon123_5!"
+        validate_certs: False
+        datacenter: "KonsaltDC"
+        state: present
+        folder: /Ansible
+        name: "{{ vmname }}"
+        snapshot_name: "{{ vmname }} Snapshot  {{ ansible_date_time.epoch }}"
+        description: "Created via Ansible Tower {{ ansible_date_time.iso8601 }}"
+      delegate_to: localhost

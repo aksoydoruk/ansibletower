@@ -1,0 +1,32 @@
+- name: POWEROFF & DELETE VM 
+  hosts: localhost
+  gather_facts: yes
+#    ansible_python_interpreter: /usr/bin/python3
+  tasks:
+    - name: Poweroff VM
+      vmware_guest:
+        hostname: '{{ lookup("env", "VMWARE_HOST") }}'
+        username: '{{ lookup("env", "VMWARE_USER") }}' 
+        password: '{{ lookup("env", "VMWARE_PASSWORD") }}'
+        validate_certs: False
+        datacenter: "KonsaltDC"
+        state: poweredoff
+        folder: /Ansible
+        name: "{{ vmname }}"
+
+    - name: sleep for 20 seconds and continue with play
+      wait_for:
+       timeout: 20
+
+    - name: Remove  VM
+      vmware_guest:
+        hostname: "192.168.3.80"
+        username: "Administrator@vsphere.local"
+        password: "Kon123_5!"
+        validate_certs: False
+        datacenter: "KonsaltDC"
+        state: absent
+        folder: /Ansible
+        name: "{{ vmname }}"
+      delegate_to: localhost
+

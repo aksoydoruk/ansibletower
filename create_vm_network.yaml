@@ -1,0 +1,70 @@
+---
+- name: Create a VM from a template
+  hosts: localhost
+  gather_facts: no
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+    vsphere_vcenter: "192.168.3.80"
+    vsphere_datacenter: "KonsaltDC"
+    vsphere_username: "Administrator@vsphere.local"
+    vsphere_password: "Kon123_5!"
+    vsphere_cluster: "KonsaltCLS"
+    folder_name: Ansible
+    vm_name: testvm3
+    vm_ip: 192.168.3.171
+    vm_gateway: 192.168.3.101
+    vm_netmask: 255.255.255.0
+  tasks:
+  - name: Create a VM folder on vCenter for new Server 
+    vcenter_folder:
+        hostname: "{{ vsphere_vcenter }}"
+        username: "{{ vsphere_username }}"
+        password: "{{ vsphere_password }}"
+        validate_certs: no
+        datacenter: "{{ vsphere_datacenter }}"
+        folder_name: "{{ folder_name }}"
+        folder_type: vm
+        state: present
+  - name: Generate static network configuration of network-utility VM
+    set_fact:
+      network_config: |
+        TYPE=Ethernet
+        BOOTPROTO=none
+        NAME=ens192
+        DEVICE=ens192
+        ONBOOT=yes
+        IPADDR={{ vm_ip }}
+        NETMASK={{ vm_netmask }}
+        GATEWAY={{ vm_gateway }}
+        DOMAIN=konsalt.local
+        DNS1=192.168.3.101
+ 
+  - name: Create a  VM from Template
+    vmware_guest:
+      hostname: "{{ vsphere_vcenter }}"
+      username: "{{ vsphere_username }}"
+      password: "{{ vsphere_password }}"
+      validate_certs: no
+      template: rhel77 
+      datacenter: "{{ vsphere_datacenter }}" 
+      folder: "{{ folder_name }}"
+      cluster: "{{ vsphere_cluster }}"
+      datastore: datastore1
+      name: "{{ vm_name }}"
+      networks:
+        - name: "VM Network"
+          start_connected: yes
+          type: static
+          ip: 192.168.3.171
+          netmask: 255.255.255.0
+          gateway: 192.168.3.1
+      customization:
+        hostname: "{{ vm_name }}"
+        domain: "konsalt.local"
+        dns_servers:
+          - 192.168.3.101
+        dns_suffix:
+          - konsalt.local
+      state: poweredon
+      wait_for_ip_address: yes
+    delegate_to: localhost

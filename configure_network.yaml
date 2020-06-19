@@ -1,0 +1,35 @@
+- name: cloning VM from a template
+  hosts: localhost
+  gather_facts: no
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+  tasks:
+    - name: Connect Network 
+      vmware_guest:
+        hostname: "192.168.3.80"
+        username: "Administrator@vsphere.local"
+        password: "Kon123_5!"
+        validate_certs: False
+        datacenter: "KonsaltDC"
+        datastore: datastore1
+#        state: poweredon
+        folder: "Ansible"
+#        template: "rhel7_template"
+        name: "vm1"
+        cluster: "KonsaltCLS"
+#        annotation:
+        networks:
+        - name: "VM Network"
+          start_connected: True
+#          ip: "192.168.3.171"
+#          netmask: "255.255.255.0"
+#          gateway: "192.168.3.1"
+#        hardware:
+#          memory_mb: "memory_info"
+#          num_cpus: "num_cpus"
+#        customization:
+#          domain: "konsalt.local"
+#          dns_servers:
+#            - 192.168.3.101
+#      register: result
+      delegate_to: localhost

@@ -1,0 +1,70 @@
+---
+- name: Create a VM from a template
+  hosts: localhost
+  gather_facts: no
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+    vsphere_vcenter: "192.168.3.80"
+    vsphere_datacenter: "KonsaltDC"
+    vsphere_username: "Administrator@vsphere.local"
+    vsphere_password: "Kon123_5!"
+    vsphere_cluster: "KonsaltCLS"
+    folder_name: Ansible
+    vm_name: testvm1
+  tasks:
+  - name: Create a VM folder on vCenter for new Server 
+    vcenter_folder:
+        hostname: "{{ vsphere_vcenter }}"
+        username: "{{ vsphere_username }}"
+        password: "{{ vsphere_password }}"
+        validate_certs: no
+        datacenter: "{{ vsphere_datacenter }}"
+        folder_name: "{{ folder_name }}"
+        folder_type: vm
+        state: present
+ 
+  - name: Create a  VM from Template
+    vmware_guest:
+      hostname: "{{ vsphere_vcenter }}"
+      username: "{{ vsphere_username }}"
+      password: "{{ vsphere_password }}"
+      validate_certs: False
+      template: rhel7_template 
+      datacenter: "{{ vsphere_datacenter }}" 
+      folder: "{{ folder_name }}"
+      cluster: "{{ vsphere_cluster }}"
+      name: "{{ vm_name }}"
+      state: present
+    register: result
+
+   
+  - name: Configure VM
+    vmware_guest:
+      hostname: "{{ vsphere_vcenter }}"
+      username: "{{ vsphere_username }}"
+      password: "{{ vsphere_password }}"
+      validate_certs: False
+      datacenter: "{{ vsphere_datacenter }}"
+      folder: "{{ folder_name }}"
+      cluster: "{{ vsphere_cluster }}"
+      name: "{{ vm_name }}"
+      networks:
+      - name: "VM Network"
+        ip: 192.168.3.171 
+        netmask: 255.255.255.0
+        gateway: 192.168.3.1
+        start_connected: True
+        type: static
+      customization:
+        existing_vm: True
+        hostname: '{{ vm_name }}'
+        domain: "konsalt.local"
+        dns_servers:
+          - 192.168.3.101
+        dns_suffix:
+          - konsalt.local
+      state: poweredon
+    register: result
+
+  - debug: var=result
+
