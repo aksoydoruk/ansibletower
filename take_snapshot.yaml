@@ -12,7 +12,7 @@
         validate_certs: False
         datacenter: "Konsalt-MESA"
         state: present
-        folder: /Ansible
+        folder: /
         name: "{{ vmname }}"
         snapshot_name: "{{ vmname }} Snapshot  {{ ansible_date_time.epoch }}"
         description: "Created via Ansible Tower {{ ansible_date_time.iso8601 }}"
