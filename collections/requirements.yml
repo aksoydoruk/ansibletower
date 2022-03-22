@@ -2,7 +2,7 @@ collections:
   # Install a collection from Ansible Galaxy.
   - name: geerlingguy.php_roles
     version: 0.9.3
-    source: https://galaxy.ansible.com
+    #source: https://galaxy.ansible.com
   - name: community.vmware
     version: 2.1.0
-    source: https://galaxy.ansible.com
+    #source: https://galaxy.ansible.com
